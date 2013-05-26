@@ -17,6 +17,7 @@
       //height: 100,
       width: 900,
       modal: true,
+      resizable: false,
       buttons: {
         "Change data": function() {
         	change_form.target='iframe_target';

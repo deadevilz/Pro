@@ -7,7 +7,7 @@
 
 <?php
 	require('config.php');
-	
+	require('checkPriority3.php');
 	
 	if(isset($_POST['slideno']))
 	{

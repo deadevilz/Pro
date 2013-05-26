@@ -1,7 +1,6 @@
 $("#back").click(function()
 {
-   	parent.history.back();
-    return false;
+   	window.location.href = "http://localhost/pro/php/choose.php";
 });
 $("#logout").click(function()
 {

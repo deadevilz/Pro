@@ -4,6 +4,7 @@ if(isset($_POST['date1'])&&isset($_POST['date2']))
 {	date_default_timezone_set('Asia/Bangkok');
 	require_once '../PHPword/PHPWord.php';
 	require("config.php");
+	require("checkPriority3.php");
 
 	$date1 = mysql_real_escape_string($_POST['date1']);
 	$date2 = mysql_real_escape_string($_POST['date2']);
@@ -97,7 +98,7 @@ if(isset($_POST['date1'])&&isset($_POST['date2']))
 	$StrDateSave = date('Ymd_gis');
 	$save = '../Word/'.$StrDateSave.'.docx';
 	$objWriter->save($save);
-	echo "Word Created <a href='http://localhost/project/Word/$StrDateSave.docx'>Click Here</a> to Download.";
+	echo "Word Created <a href='../Word/$StrDateSave.docx'>Click Here</a> to Download.";
 }
 function randomString($len)
 {

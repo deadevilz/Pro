@@ -4,3 +4,6 @@ $("#redirect_search").click(function(){
 $("#redirect_add_tumor_data").click(function(){
 	window.location.href = "add_tumor_data.php";
 });
+$("#redirect_print").click(function(){
+	window.location.href = "report.php";
+});

@@ -16,6 +16,11 @@
 </head>
 <body>
 	
+	<div id="dialog-form-delete" title="Delete Picture"  style="display:none;">
+	  	<form method="POST" class="well span8" id="picture_form"  name="picture_form" enctype="multipart/form-data">
+			
+		</form>
+	</div>	
 
 	<div id="alertSuccess" class="alert alert-success" style="display:none;">
   		<button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -29,9 +34,8 @@
 
 	<div id="dialog"></div>
 
-	
-
-		<span class="well span3">
+	<span id="container" class="container-fluid">
+		<span class="well span2">
 			<legend>Logout</legend>
 			<input type="button" value="logout" class="btn" id="logout"/>
 			<input type="button" value="Back" class="btn"  id="back"/>
@@ -377,12 +381,15 @@
 							</select>
 						</td>
 					</tr>
+					<tr>
+						<td></td>
+						<td><input type="submit" value="ค้นหา" class="btn btn-primary" name="submit"/></td>
+					</tr>
 				</table>
-				<input type="submit" value="ค้นหา" class="btn btn-primary" name="submit"/>
 			</form>
 	
 
-	<!---  -->
+	<!---  Dialog  -->
 <div id="dialog-form" title="Create new user" style="display:none;">
   <form action="change_tumor_data.php" method="POST" class="well span8" id="change_form"  name="change_form" enctype="multipart/form-data">
 			<iframe id="iframe_target" name="iframe_target" src="#" style="width:0;height:0;border:0px solid #fff;"></iframe>
@@ -830,40 +837,42 @@
 			<h4 id="username"><?php echo $_SESSION['username'];?></h4>
 		</span>
 	</ul>
+</span>
 
 	<p id="container" class="container-fluid">
 <?php
 if(isset($_POST['submit']))
-{ require('config.php');
-  $sql = "SELECT hn,slideno,date_biopsy,name,age,SEX,site,region_of_lesion as ROL,location,diagnosis,category,sub_category,path_picture as Picture ";
-  $sql .= "FROM `tumor_data` LEFT JOIN `picture_path` ON hn=hn_picture";
-  $sql .= StringWhere();
-  $sql .= StringOrderBy();
-  $query = mysql_query($sql,$objConnect);
-  echo "<table class=\"table table-bordered table-hover\"><tr class='info'><td><strong>#</strong></td>";
-      $fieldAr = array();
-      for($i=0; $i<mysql_num_fields($query);$i++)
-      {
+{ 	require('config.php');
+	//require('checkPriority3.php');
+  	$sql = "SELECT hn,slideno,date_biopsy,name,age,SEX,site,region_of_lesion as ROL,location,diagnosis,category,sub_category,path_picture as Picture ";
+ 	$sql .= "FROM `tumor_data` LEFT JOIN `picture_path` ON hn=hn_picture";
+ 	$sql .= StringWhere();
+  	$sql .= StringOrderBy();
+ 	$query = mysql_query($sql,$objConnect);
+ 	echo "<table class=\"table table-bordered table-hover\"><tr class='info'><td><strong>#</strong></td>";
+    $fieldAr = array();
+    for($i=0; $i<mysql_num_fields($query);$i++)
+    {
         $field = mysql_fetch_field($query);
         $fieldAr[$i]=$field->name;
         echo "<td><strong>{$field->name}</strong></td>\n";
-      }
-      echo "<td><strong>Change</strong></td>\n<td><strong>Remove</strong></td>\n";
-      $j=0;
-      while($row = mysql_fetch_assoc($query))
-      { $j++;
+    }
+    echo "<td><strong>Change</strong></td>\n<td><strong>Remove</strong></td>\n";
+    $j=0;
+    while($row = mysql_fetch_assoc($query))
+    {	 $j++;
 
         //input display show
-        echo "<tr id='rowText$j'>\n";
-        echo "<td>$j</td>\n";
-        $k=-1;
-        
+       	echo "<tr id='rowText$j'>\n";
+      	echo "<td>$j</td>\n";
+      	$k=-1;
+        $row['Picture'] .= "<button class='btn btn-small deletePic' row='$j'><i class='icon-trash'></i></button>";
         foreach($row as $cell)
         { 
-          $k++;
+         	$k++;
           
-          //if($k!=13)
-          echo "<td id='$fieldAr[$k]Text$j'>$cell</td>\n";
+          	//if($k!=13)
+          	echo "<td id='$fieldAr[$k]Text$j'>$cell</td>\n";
         }
         //picture 
         
@@ -871,7 +880,7 @@ if(isset($_POST['submit']))
         echo "<td><input type='button' value='Change' name='Change' class='change btn btn-warning btn-small' row='$j' /></td>\n";
         echo "<td><input type='button' value='Remove' name='Remove' class='remove btn btn-danger btn-small' row='$j' /></td>\n";
         echo "</tr>\n";
-      }
+    }
 
 }
   function StringWhere()
@@ -939,6 +948,65 @@ if(isset($_POST['submit']))
 <script type="text/javascript">
 var row;
 $(function() {
+	$('td').delegate('.deletePic','click',function() {
+		$("#dialog-form-delete").dialog("open");
+		row = $(this).attr('row');
+		$("#picture_form").html("");
+		$.ajax
+		({
+			url:"http://localhost/pro/php/service_PicturePath.php",
+			data:"hn="+$("#hnText"+row).text(),
+			type:"POST",
+			dataType:"JSON",
+			success:function(data)
+			{
+				//console.log(data);
+				for(var i=0;i<data.length;i++)
+				{
+					$("#picture_form").append("<p><center><a class='fancybox' id='pic"+i+"' href='"+data[i].path+"' title='"+data[i].path+"'><img class='img-polaroid' src='"+data[i].path+"' alt='' height='50' width='100' /></a></center></p>");
+					$("#picture_form").append("<p><center><a id='path"+i+"' class='btn disabled'>"+data[i].path+"</a></center></p>");
+					$("#picture_form").append("<p><center><input id='del' class='deletePic btn btn-small btn-danger' type='button' value='delete' rowin='"+i+"' path='"+data[i].path+"'/></center>")//<a class='deletePic btn btn-small' href='#' path='"+data[i].path+"' row='"+i+"' ><i class='icon-star icon-white'></i> Delete</a>
+				}
+			}
+		});
+	});
+	
+	$('#picture_form').delegate('input','click',function() {
+			var path = $(this).attr('path');
+			var rowin = $(this).attr('rowin');
+			var $target = $(event.target);
+			$.ajax({
+				url:"http://localhost/pro/php/service_delete_picture.php",
+				data:"picture_path="+path,
+				type:"POST",
+				success:function(data)
+				{
+					console.log(data);
+					if(data=="การลบรูปสำเร็จ")
+		       		{	$("#pic"+rowin).remove();
+		       			$("#path"+rowin).remove();
+		       			$target.remove();
+		       			ajax_service_SCR(row);
+		       		}
+				}
+			})
+        return false;
+    	});
+
+	$("#dialog-form-delete").dialog({
+      autoOpen: false,
+      //height: 100,
+      width: 900,
+      modal: true,
+      buttons: {
+        Close: function() {
+        $( this ).dialog( "close" );
+        }
+      },
+      close: function() {
+         $( this ).dialog( "close" );
+      }
+    });
 
     $("#dialog-form").dialog({
       autoOpen: false,
@@ -970,31 +1038,31 @@ $(function() {
        
   $("#delete_picture").click(function()
   {
-    if(eq>0) eq--;
-    $(":file").eq(eq).filestyle('clear');
-    $(".picture:visible").last().css("display", "none");
+	    if(eq>0) eq--;
+	    $(":file").eq(eq).filestyle('clear');
+	    $(".picture:visible").last().css("display", "none");
   });
   
   $(".change").click(function() 
   {
-    row = $(this).attr('row');
-    $("#slideno_dialog").val($("#slidenoText"+row).text());
-    $("#hn_dialog").val($("#hnText"+row).text());
-    $("#hn_text").text($("#hnText"+row).text());
-    $("#name_dialog").val($("#nameText"+row).text());
-    $("#age_dialog").val($("#ageText"+row).text());
-    $("#sex_dialog").val($("#SEXText"+row).text());
-    $("#site_dialog").val($("#siteText"+row).text());
-    $("#date_biopsy_dialog").val($("#date_biopsyText"+row).text());
-    $("#region_of_lesion_dialog").val($("#ROLText"+row).text());
-    $("#location_dialog").val($("#locationText"+row).text());
-    $("#diagnosis_dialog").val($("#diagnosisText"+row).text());
-    $("#category_dialog").val($("#categoryText"+row).text());
-    select_sub_category();
-    $("#sub_category_dialog").val($("#sub_categoryText"+row).text());
-    $(":file").filestyle('clear');
-    $(".picture").hide();
-    $( "#dialog-form" ).dialog( "open" );
+	    row = $(this).attr('row');
+	    $("#slideno_dialog").val($("#slidenoText"+row).text());
+	    $("#hn_dialog").val($("#hnText"+row).text());
+	    $("#hn_text").text($("#hnText"+row).text());
+	    $("#name_dialog").val($("#nameText"+row).text());
+	    $("#age_dialog").val($("#ageText"+row).text());
+	    $("#sex_dialog").val($("#SEXText"+row).text());
+	    $("#site_dialog").val($("#siteText"+row).text());
+	    $("#date_biopsy_dialog").val($("#date_biopsyText"+row).text());
+	    $("#region_of_lesion_dialog").val($("#ROLText"+row).text());
+	    $("#location_dialog").val($("#locationText"+row).text());
+	    $("#diagnosis_dialog").val($("#diagnosisText"+row).text());
+	    $("#category_dialog").val($("#categoryText"+row).text());
+	    select_sub_category();
+	    $("#sub_category_dialog").val($("#sub_categoryText"+row).text());
+	    $(":file").filestyle('clear');
+	    $(".picture").hide();
+	    $( "#dialog-form" ).dialog( "open" );
   });
 
   $("#category_dialog").change(function()
@@ -1171,43 +1239,8 @@ $(function() {
   {
       if(result=='1')
       {
-
-         $.ajax
-          ({
-              url:'service_SCR.php',
-              type:'POST',
-              data:'hn='+$("#hnText"+row).text(),
-              dataType: 'json',
-              success:function(data)
-              {
-                console.log(row);
-                console.log(data[0].slideno);
-                console.log(data[0].date_biopsy);
-                console.log(data[0].name);
-                console.log(data[0].age);
-                console.log(data[0].SEX);
-                console.log(data[0].site);
-                console.log(data[0].ROL);
-                console.log(data[0].location);
-                console.log(data[0].diagnosis);
-                console.log(data[0].category);
-                console.log(data[0].sub_category);
-                console.log(data[0].picture);
-                $("#slidenoText"+row).text(data[0].slideno);
-                $("#date_biopsyText"+row).text(data[0].date_biopsy);
-                $("#nameText"+row).text(data[0].name);
-                $("#ageText"+row).text(data[0].age);
-                $("#SEXText"+row).text(data[0].SEX);
-                $("#siteText"+row).text(data[0].site);
-                $("#ROLText"+row).text(data[0].ROL);
-                $("#locationText"+row).text(data[0].location);
-                $("#diagnosisText"+row).text(data[0].diagnosis);
-                $("#categoryText"+row).text(data[0].category);
-                $("#sub_categoryText"+row).text(data[0].sub_category);
-                $("#PictureText"+row).html(data[0].picture);
-                $("#alertSuccess").fadeIn(1000).delay(3000).fadeOut(1000);
-              }
-          });
+      	 ajax_service_SCR(row);
+        
       }
   }
 $(window).ready(function()
@@ -1237,10 +1270,9 @@ $(window).ready(function()
 	});
 
 	$(".remove").click(function(){
-		alert('tes');
 		var username = $("#username").html();
 		var row = $(this).attr("row");
-		var hn = $('#hn'+row).html();
+		var hn = $('#hnText'+row).html();
 		$("#dialog").attr('title','Warning').text('คุณต้องการลบข้อมูลจริงหรือไม่').dialog({ 
 			modal: true,
 			resizable: false,
@@ -1275,7 +1307,7 @@ $(window).ready(function()
 			}
 			,{ text: "Cancel", click: function() { $( this ).dialog( "close" ); } } ] });
 	});
-
+	
 	$(".save").click(function(){
 		var username = $("#username").html();
 		var row = $(this).attr('row');
@@ -1291,7 +1323,7 @@ $(window).ready(function()
 		var diagnosis = $('#diagnosis'+row).val();
 		var catagory = $('#catagory'+row).val();
 		var sub_catagory = $('#sub_catagory'+row).val();
-		console.log(row+" "+slideno+" "+hn+" "+date_biopsy+" "+name+" "+age+" "+sex+" "+site+" "+region_of_lesion+" "+location+" "+diagnosis+" "+catagory+" "+sub_catagory+" ");
+		//console.log(row+" "+slideno+" "+hn+" "+date_biopsy+" "+name+" "+age+" "+sex+" "+site+" "+region_of_lesion+" "+location+" "+diagnosis+" "+catagory+" "+sub_catagory+" ");
 		//#ajax
 		$.ajax
 		({
@@ -1305,7 +1337,7 @@ $(window).ready(function()
 			{
 
 				$("#alertSuccess").fadeIn(1000).delay(3000).fadeOut(1000);
-				console.log(data);
+				//console.log(data);
 				if(data=='เปลี่ยนแปลงค่าสำเร็จ')
 				{
 					$("#slidenoText"+row).html(slideno);
@@ -1375,6 +1407,45 @@ $(window).ready(function()
 		console.log(tag+"  ");
 		$(this).parent().parent().replaceWith(tag);
 		
+	}
+	function ajax_service_SCR(row)
+	{	//alert(row);
+		 $.ajax
+          ({
+              url:'service_SCR.php',
+              type:'POST',
+              data:'hn='+$("#hnText"+row).text(),
+              dataType: 'json',
+              success:function(data)
+              {
+                console.log(row);
+                console.log(data[0].slideno);
+                console.log(data[0].date_biopsy);
+                console.log(data[0].name);
+                console.log(data[0].age);
+                console.log(data[0].SEX);
+                console.log(data[0].site);
+                console.log(data[0].ROL);
+                console.log(data[0].location);
+                console.log(data[0].diagnosis);
+                console.log(data[0].category);
+                console.log(data[0].sub_category);
+                console.log(data[0].picture);
+                $("#slidenoText"+row).text(data[0].slideno);
+                $("#date_biopsyText"+row).text(data[0].date_biopsy);
+                $("#nameText"+row).text(data[0].name);
+                $("#ageText"+row).text(data[0].age);
+                $("#SEXText"+row).text(data[0].SEX);
+                $("#siteText"+row).text(data[0].site);
+                $("#ROLText"+row).text(data[0].ROL);
+                $("#locationText"+row).text(data[0].location);
+                $("#diagnosisText"+row).text(data[0].diagnosis);
+                $("#categoryText"+row).text(data[0].category);
+                $("#sub_categoryText"+row).text(data[0].sub_category);
+                $("#PictureText"+row).html(data[0].picture+"<button class='btn btn-small deletePic' row='"+row+"'><i class='icon-trash'></i></button>");
+                $("#alertSuccess").fadeIn(1000).delay(3000).fadeOut(1000);
+              }
+          });
 	}
 
 </script>

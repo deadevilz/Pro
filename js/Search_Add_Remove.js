@@ -11,7 +11,6 @@ $(window).ready(function()
 		//$("td").css({"padding":"6","text-align":"center"});
 		$(".fancybox").fancybox();
 		$(".date_biopsy").datepicker({ dateFormat: 'yy-mm-dd' });
-		
 		$(".input").hide();
 		
 
@@ -25,16 +24,17 @@ $(window).ready(function()
 	});
 
 	$(".remove").click(function(){
-		alert('tes');
 		var username = $("#username").html();
 		var row = $(this).attr("row");
 		var hn = $('#hn'+row).html();
+		console.log(hn);
 		$("#dialog").attr('title','Warning').text('คุณต้องการลบข้อมูลจริงหรือไม่').dialog({ 
 			modal: true,
 			resizable: false,
 			buttons: [ 
 			{ text: "Ok", click: function() 
 				{ 
+					alert('tse');
 					$.ajax
 					({
 						type: 'POST',

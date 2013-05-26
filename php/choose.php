@@ -19,8 +19,8 @@
 		<span class="well span5">
 			<legend>Choose Action</legend>
 			<center>
-				<p class="style4"><input type="button" value="ค้นหาข้อมูล" class="btn btn-large btn-info" id="redirect_search" /></p>
-				<p class="style4"><input type="button" value="เพิ่มข้อมูลคนไข้" class="btn btn-large btn-info" id="redirect_add_tumor_data"/></p>				
+				<p class="style4"><input type="button" value="เพิ่มข้อมูลคนไข้" class="btn btn-large btn-info" id="redirect_add_tumor_data"/></p>	
+				<p class="style4"><input type="button" value="ค้นหา/แก้ไข้/ลบ ข้อมูลตคนไข้" class="btn btn-large btn-info" id="redirect_search" /></p>			
 				<p class="style4"><input type="button" value="พิมพ์แบบฟอร์ม tumor conference" class="btn btn-large btn-info" id="redirect_print"/></p>
 			</center>
 		</span>

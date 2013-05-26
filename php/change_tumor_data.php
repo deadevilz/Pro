@@ -1,5 +1,6 @@
 <?php
 require('config.php');
+require('checkPriority3.php');
 if(isset($_POST['hn']))
 {
 	header('Content-Type: text/html; charset=utf-8');

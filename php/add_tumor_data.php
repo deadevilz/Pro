@@ -11,7 +11,7 @@
 </head>
 <body>
 	<ul>
-		<span class="well span3">
+		<span class="well span2">
 			<legend>Logout</legend>
 			<input type="button" value="logout" class="btn" id="logout"/>
 			<input type="button" value="Back" class="btn"  id="back"/>
@@ -463,14 +463,14 @@
 
 
 	<ul>
-		<form action="login.php" method="POST" class="well span4" >
+		<form action="login.php" method="POST" class="well span3" >
 			<legend>Username</legend>
 			<h3 id="username"><?php echo $_SESSION['username'];?></h3>
 		</form>
 	</ul>
 
 	<ul>
-		<form action="login.php" method="POST" class="well span4" >
+		<form action="login.php" method="POST" class="well span3" >
 			<legend>Status</legend>
 			<h3 id="status"></h3>
 		</form>
@@ -732,6 +732,7 @@
 				//data:data,
 				success: function(data)
 				{
+					console.log(data);
 					removeClassError();
 					$('#status').html(data);
 					if(data=='ช่อง SLIDENO ไม่ได้ใส่ค่า')
@@ -795,6 +796,10 @@
    		else if(result=='10')
    		{
    			$("#status").html("การเพิ่มข้อมูลผิดพลาด");
+   		}
+   		else if(result=='11')
+   		{
+   			$("#status").html("username นี้มีสิทธิ์ไม่ถึง");
    		}
    	}
    function select_sub_category_picture1()
